@@ -52,6 +52,30 @@ docker compose -f backend/docker-compose.yml … # backend containers
 The pre-approved commands in `.claude/settings.json` use exactly these
 forms.
 
+## Design source (`design/`)
+
+`design/` holds visual references — a Web Claude (Artifacts) export, Figma
+output, screenshots, HTML/CSS mockups. It is a **spec, not shippable
+code**: those files use in-browser Babel, global-scope React, plain CSS,
+and authoring helpers (tweaks panel, `<image-slot>` web component) — none
+of which belong in this stack.
+
+When asked to "build / implement the design", reconstruct it — never copy
+the raw files into `frontend/src`:
+
+1. **Read everything in `design/`.** Screenshots are the visual ground
+   truth; the JSX/HTML gives structure and the exact copy; the CSS gives
+   colors, fonts, spacing, radius, shadows.
+2. **Lift the design tokens** (palette, typography, radius, shadows) into
+   the Tailwind theme variables in `frontend/src/index.css`.
+3. **Rebuild section by section** as React + TypeScript components under
+   `frontend/src/` (`components/` + `pages/`), styled with Tailwind and the
+   project's shadcn/ui primitives. Match layout, spacing, copy, and feel.
+4. **Translate, don't transplant:** plain CSS → Tailwind classes;
+   `<image-slot>` → a normal `<img>` / asset; drop the tweaks panel (it was
+   an authoring tool, not part of the product).
+5. Keep all user-visible strings going through i18n (`t('key')`).
+
 ## Where to put new docs
 
 - `docs/plan.md` — phase-level roadmap. One file per project lifetime.

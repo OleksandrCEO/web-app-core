@@ -16,6 +16,7 @@ right patterns automatically (humans benefit too).
 | `frontend/` | Vite 8 + React 19 + TS 6 + Tailwind v4 + shadcn/ui + TanStack Query/Table + ky + Zustand + i18next |
 | `backend/` | FastAPI + async SQLAlchemy 2 + Alembic + Poetry + Docker/compose, JWT auth pre-wired |
 | `docs/` | `plan.md`, `packages.md` (dependency policy), `logic/`, `deployment.md` |
+| `design/` | Drop a Web Claude / Figma export here; the agent rebuilds it into `frontend/` |
 | `CLAUDE.md` | Agent instructions + pointers to the per-side `CLAUDE.md` files |
 | `.claude/settings.json` | Pre-approved safe commands; migrations & destructive ops require a prompt |
 

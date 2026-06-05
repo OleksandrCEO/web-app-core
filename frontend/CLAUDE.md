@@ -50,6 +50,12 @@ Run from the **monorepo root** (`-C frontend` targets this sub-project, no
 Before adding a library, check @../docs/packages.md — use the approved one,
 don't introduce a second tool for a solved problem.
 
+## Building from a design
+
+If `../design/` holds a design export, **reconstruct** it into this stack
+(React + TS + Tailwind) — don't copy the raw files. The full algorithm is
+in the root `CLAUDE.md` → *Design source*.
+
 ## Conventions
 
 - Named exports, one component per file, kebab-case file names.
