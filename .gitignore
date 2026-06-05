@@ -1,0 +1,20 @@
+# Editor / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+*.swp
+*.swo
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+.keys/
+
+# Logs
+logs/
+*.log
+
+# Claude
+.claude/settings.local.json

@@ -1,0 +1,16 @@
+.venv/
+.git/
+.gitignore
+.env
+__pycache__/
+*.pyc
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+tests/
+docs/
+*.md
+flake.nix
+flake.lock
+.envrc
+Makefile

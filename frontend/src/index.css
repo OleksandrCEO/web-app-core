@@ -1,0 +1,94 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ===========================================================
+   LIGHT PALETTE
+   =========================================================== */
+:root {
+  --radius: 0.75rem;
+
+  --background: oklch(0.99 0.005 264);
+  --foreground: oklch(0.2 0.02 264);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.02 264);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.02 264);
+
+  --primary: oklch(0.55 0.18 256);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.01 264);
+  --secondary-foreground: oklch(0.2 0.02 264);
+  --muted: oklch(0.96 0.005 264);
+  --muted-foreground: oklch(0.5 0.02 264);
+  --accent: oklch(0.96 0.005 264);
+  --accent-foreground: oklch(0.2 0.02 264);
+  --destructive: oklch(0.6 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.92 0.005 264);
+  --input: oklch(0.92 0.005 264);
+  --ring: oklch(0.55 0.18 256);
+}
+
+/* ===========================================================
+   DARK PALETTE (Soft preset — lifted base surfaces for hierarchy)
+   =========================================================== */
+.dark {
+  --background: oklch(0.21 0.01 264);
+  --foreground: oklch(0.96 0.005 264);
+  --card: oklch(0.27 0.01 264);
+  --card-foreground: oklch(0.96 0.005 264);
+  --popover: oklch(0.27 0.01 264);
+  --popover-foreground: oklch(0.96 0.005 264);
+
+  --primary: oklch(0.7 0.16 256);
+  --primary-foreground: oklch(0.15 0.01 264);
+  --secondary: oklch(0.30 0.01 264);
+  --secondary-foreground: oklch(0.96 0.005 264);
+  --muted: oklch(0.30 0.01 264);
+  --muted-foreground: oklch(0.68 0.01 264);
+  --accent: oklch(0.30 0.01 264);
+  --accent-foreground: oklch(0.96 0.005 264);
+  --destructive: oklch(0.65 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.7 0.16 256);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Geist Variable", system-ui, sans-serif;
+  }
+}

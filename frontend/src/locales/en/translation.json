@@ -1,0 +1,13 @@
+{
+  "app": {
+    "name": "App"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading…",
+    "error": "Something went wrong"
+  }
+}

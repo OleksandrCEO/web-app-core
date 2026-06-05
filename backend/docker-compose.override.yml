@@ -1,0 +1,10 @@
+# Local-only overrides. Safe to commit; meant for typical dev setup
+# (expose Postgres on 5432, no reverse-proxy labels).
+services:
+  app:
+    container_name: backend-app
+
+  db:
+    container_name: backend-db
+    ports:
+      - "127.0.0.1:5432:5432"

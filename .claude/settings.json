@@ -1,0 +1,48 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm -C frontend install)",
+      "Bash(pnpm -C frontend dev)",
+      "Bash(pnpm -C frontend build)",
+      "Bash(pnpm -C frontend lint *)",
+      "Bash(pnpm -C frontend preview)",
+      "Bash(pnpm -C frontend dlx shadcn@latest add *)",
+
+      "Bash(poetry -C backend install)",
+      "Bash(poetry -C backend run pytest *)",
+      "Bash(poetry -C backend run mypy *)",
+      "Bash(poetry -C backend run ruff check *)",
+
+      "Bash(poetry -C backend run alembic current)",
+      "Bash(poetry -C backend run alembic heads)",
+      "Bash(poetry -C backend run alembic check)",
+      "Bash(poetry -C backend run alembic history *)",
+      "Bash(poetry -C backend run alembic show *)",
+
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git branch *)"
+    ],
+    "ask": [
+      "Bash(poetry -C backend run alembic revision *)",
+      "Bash(poetry -C backend run alembic upgrade *)",
+      "Bash(poetry -C backend run alembic downgrade *)",
+
+      "Bash(pnpm -C frontend exec *)",
+      "Bash(poetry -C backend run python *)",
+
+      "Bash(docker compose *)",
+      "Bash(docker *)"
+    ],
+    "deny": [
+      "Bash(python)",
+      "Bash(poetry shell)",
+
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf /home/*)",
+      "Bash(git push --force *)"
+    ]
+  }
+}
