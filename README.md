@@ -1,4 +1,4 @@
-# web-app-core
+# Web App Core Boilerplate
 
 Universal full-stack monorepo template, tuned for **AI-agent-driven
 development**. The goal is **"download → fill `.env` → start coding"** — no
