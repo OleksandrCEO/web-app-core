@@ -2,14 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Front (pnpm dev)",
+      "name": "Frontend",
       "type": "node-terminal",
       "request": "launch",
       "command": "pnpm dev",
       "cwd": "${workspaceFolder}/frontend"
     },
     {
-      "name": "Back (uvicorn)",
+      "name": "Backend",
       "type": "node-terminal",
       "request": "launch",
       "command": "poetry run uvicorn app.main:app --reload",
