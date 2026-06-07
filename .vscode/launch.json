@@ -7,6 +7,13 @@
       "request": "launch",
       "command": "pnpm dev",
       "cwd": "${workspaceFolder}/frontend"
+    },
+    {
+      "name": "Back (uvicorn)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "poetry run uvicorn app.main:app --reload",
+      "cwd": "${workspaceFolder}/backend"
     }
   ]
 }
