@@ -8,6 +8,10 @@ behind design choices.
 
 - **`plan.md`** — phase-level roadmap. One file per project lifetime.
   Mark phases as DONE / current / future. Don't delete completed ones.
+- **`packages.md`** — dependency policy: the approved library per concern,
+  and what NOT to add. Check it before installing anything.
+- **`claude.md`** — the guide on how to write effective `CLAUDE.md` and
+  AI-agent docs. Read it before editing any `CLAUDE.md` in this repo.
 - **`deployment.md`** — production server, CI, runtime infra, secrets
   rotation.
 - **`logic/`** — one file per subsystem. Invariants, contracts, gotchas.

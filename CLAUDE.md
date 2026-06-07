@@ -37,6 +37,10 @@ parser only needs `backend/`; a static SPA only needs `frontend/`).
 5. **Before adding any dependency, consult @docs/packages.md.** Prefer the
    libraries listed there; if a need isn't covered, propose one to the
    user and add a row to that file.
+6. **Before editing any `CLAUDE.md`** (this file or a sub-project's), read
+   @docs/claude.md first — the guide on how to write effective agent docs
+   (instruction budget, orchestrator pattern, what to include/exclude) —
+   and apply its rules to your edit.
 
 ## Running commands (no `cd`)
 
