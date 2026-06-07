@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Запустити фронт (pnpm dev)",
+      "name": "Front (pnpm dev)",
       "type": "node-terminal",
       "request": "launch",
       "command": "pnpm dev",
