@@ -1,0 +1,10 @@
+{
+  // name мусить збігатися з "Project name" у Cloudflare (Workers & Pages)
+  "name": "my-school",
+  "compatibility_date": "2026-06-11",
+  "assets": {
+    "directory": "./dist",
+    // SPA: будь-який невідомий маршрут віддаємо index.html (потрібно для react-router)
+    "not_found_handling": "single-page-application"
+  }
+}
