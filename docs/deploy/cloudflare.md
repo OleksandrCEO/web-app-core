@@ -40,12 +40,20 @@
    видали його: цю роль тепер виконує not_found_handling у wrangler.jsonc,
    тримати два механізми не треба.
 
-4. Додай wrangler (остання стабільна версія) у devDependencies у
-   frontend/package.json і встанови залежності (pnpm install у frontend/).
-   Так білд на Cloudflare використовуватиме закріплену версію wrangler —
-   деплой буде швидшим і без сюрпризів від npx.
+4. Перевір frontend/pnpm-workspace.yaml. Якщо файл існує і в ньому НЕМАЄ поля
+   packages — додай його (інакше білд на Cloudflare впаде з помилкою
+   "packages field missing or empty": там старіша версія pnpm, яка вимагає це
+   поле, навіть якщо локально все збирається). Має бути так:
+     packages:
+       - .
+   Решту вмісту файлу (напр. allowBuilds) не чіпай.
 
-5. Наприкінці виведи:
+5. Додай wrangler (остання стабільна версія) у devDependencies у
+   frontend/package.json і встанови залежності (pnpm install у frontend/) —
+   це згенерує/оновить frontend/pnpm-lock.yaml. Так білд на Cloudflare
+   використовуватиме закріплену версію wrangler, швидше й без сюрпризів від npx.
+
+6. Наприкінці виведи:
    а) підсумок змінених файлів;
    б) нагадування закомітити й Sync (push) — Cloudflare деплоїть лише залите
       на GitHub. Переконайся, що в коміт потрапили frontend/wrangler.jsonc,
@@ -80,6 +88,7 @@
 
 ## Часті помилки
 
+- **Build впав: `packages field missing or empty`:** у `frontend/pnpm-workspace.yaml` немає поля `packages`. Cloudflare ставить старіший pnpm, який цього вимагає (локально новіший терпить). Додай `packages:` зі значенням `- .`.
 - **Build впав через ім'я (name mismatch):** «Project name» ≠ `name` у `wrangler.jsonc`. Зроби однаковими.
 - **Не знайдено `wrangler.jsonc` / `package.json`:** не виставлений **Path = `frontend`**, або файли ще не запушені на GitHub.
 - **Сайт не оновлюється:** забув `Sync` (push). Деплоїться лише залите на GitHub.

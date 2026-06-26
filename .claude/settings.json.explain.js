@@ -4,6 +4,9 @@
 // All commands are written to run FROM THE MONOREPO ROOT, addressing the
 // sub-project with a directory flag (`pnpm -C frontend`, `poetry -C backend`)
 // instead of `cd`. Claude Code runs at the root and never needs to `cd`.
+//
+// Priority: deny > ask > allow > (default: prompt).
+// A `*` does NOT cross `&& || ; |` — each segment is checked separately.
 {
   "permissions": {
     "allow": [
@@ -13,13 +16,15 @@
       "Bash(pnpm -C frontend build)",
       "Bash(pnpm -C frontend lint *)",
       "Bash(pnpm -C frontend preview)",
+      "Bash(pnpm -C frontend exec tsc --noEmit)",   // typecheck (writes nothing)
+      "Bash(pnpm -C frontend exec tsc --noEmit *)", // same + extra flags
       "Bash(pnpm -C frontend dlx shadcn@latest add *)",
 
       // --- Backend (run from monorepo root) ---
       "Bash(poetry -C backend install)",
       "Bash(poetry -C backend run pytest *)",
       "Bash(poetry -C backend run mypy *)",
-      "Bash(poetry -C backend run ruff check *)",
+      "Bash(poetry -C backend run ruff check *)",   // lint only — NOT --fix (it mutates)
 
       // --- DB state checks (read-only) ---
       "Bash(poetry -C backend run alembic current)",
@@ -54,9 +59,9 @@
       "Bash(python)",
       "Bash(poetry shell)",
 
-      // --- Hard-to-reverse destructive ops ---
+      // --- Hard-to-reverse destructive ops (cross-OS: ~ works on Win/Mac/Linux) ---
       "Bash(rm -rf /*)",
-      "Bash(rm -rf /home/*)",
+      "Bash(rm -rf ~/*)",
       "Bash(git push --force *)"
     ]
   }

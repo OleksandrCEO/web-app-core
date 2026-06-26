@@ -6,6 +6,8 @@
       "Bash(pnpm -C frontend build)",
       "Bash(pnpm -C frontend lint *)",
       "Bash(pnpm -C frontend preview)",
+      "Bash(pnpm -C frontend exec tsc --noEmit)",
+      "Bash(pnpm -C frontend exec tsc --noEmit *)",
       "Bash(pnpm -C frontend dlx shadcn@latest add *)",
 
       "Bash(poetry -C backend install)",
@@ -41,7 +43,7 @@
       "Bash(poetry shell)",
 
       "Bash(rm -rf /*)",
-      "Bash(rm -rf /home/*)",
+      "Bash(rm -rf ~/*)",
       "Bash(git push --force *)"
     ]
   }
