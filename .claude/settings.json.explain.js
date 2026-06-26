@@ -7,7 +7,7 @@
 //
 // Priority: deny > ask > allow > (default: prompt).
 // A `*` does NOT cross `&& || ; |` — each segment is checked separately.
-{
+const example = {
   "permissions": {
     "allow": [
       // --- Frontend (run from monorepo root) ---
