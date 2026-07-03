@@ -1,6 +1,6 @@
 # AI Agent Context — Backend
 
-FastAPI / Python 3.12+ / SQLAlchemy 2.0 async / PostgreSQL (asyncpg) /
+FastAPI / Python 3.13+ / SQLAlchemy 2.0 async / PostgreSQL (asyncpg) /
 Alembic. Project-specific docs in `docs/` (see root `CLAUDE.md`).
 
 See @docs/plan.md for the roadmap.
@@ -40,7 +40,9 @@ don't introduce a second tool for a solved problem.
 ## Architecture
 
 Entry point: `app/main.py` — creates FastAPI instance and includes all
-routers.
+routers. **All routers are mounted under the `/api` prefix**
+(`app.include_router(x.router, prefix="/api")`) — the frontend and the
+Vite dev proxy expect it.
 
 ```
 app/
@@ -70,6 +72,18 @@ alembic/env.py         — migration env (all models must be imported here)
   Optional fields.
 - **DB commit pattern**: services only `flush()` — routers call
   `await db.commit()` after mutations.
+
+## Auth API contract (expected by the frontend)
+
+The frontend (`frontend/src/lib/api-client.ts`, `frontend/src/stores/auth.ts`)
+already implements the client side. When building the auth router, match it:
+
+- `POST /api/auth/refresh` with body `{"refresh_token": "<jwt>"}` →
+  `TokenResponse`: `{"access_token", "refresh_token", "token_type"}`
+  (rotate the refresh token on each call).
+- Login/register endpoints return the same `TokenResponse` shape.
+- Protected endpoints read `Authorization: Bearer <access_token>`;
+  on 401 the client auto-refreshes and retries once.
 
 ## Migrations
 

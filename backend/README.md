@@ -13,8 +13,8 @@ poetry install
 cp .env.example .env
 $EDITOR .env
 
-# 3. Create DB (one-time)
-createdb $(grep ^DB_NAME .env | cut -d= -f1)
+# 3. Start Postgres (Docker, exposed on 127.0.0.1:5432 — see docker-compose.override.yml)
+docker compose up -d db
 
 # 4. Run migrations
 poetry run alembic upgrade head
@@ -23,14 +23,14 @@ poetry run alembic upgrade head
 poetry run uvicorn app.main:app --reload
 ```
 
-API is on `http://localhost:8000`. Health check: `GET /health`.
+API is on `http://localhost:8000`. Health check: `GET /api/health`.
 
 ## Stack
 
 | Layer | Choice |
 |-------|--------|
 | Framework | FastAPI |
-| Python | 3.12+ |
+| Python | 3.13+ |
 | ORM | SQLAlchemy 2.0 async (asyncpg) |
 | Migrations | Alembic |
 | Validation | Pydantic v2 |

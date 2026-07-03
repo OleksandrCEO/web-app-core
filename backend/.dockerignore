@@ -10,7 +10,3 @@ __pycache__/
 tests/
 docs/
 *.md
-flake.nix
-flake.lock
-.envrc
-Makefile

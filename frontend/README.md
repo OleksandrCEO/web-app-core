@@ -1,7 +1,8 @@
 # Frontend
 
 Vite + React 19 + TypeScript 6 + Tailwind v4 + shadcn/ui (base-nova).
-Pre-wired auth flow (JWT with auto-refresh), data fetching, i18n, theme
+Auth primitives + client-side JWT flow with auto-refresh (the backend
+auth router is added in a course module), data fetching, i18n, theme
 switcher, toaster, and a folder layout that scales.
 
 ## Setup
@@ -52,7 +53,7 @@ Dev server: `http://localhost:5173`. API is proxied to
 
 ```
 src/
-├── main.tsx                    # Providers: QueryClient, Tooltip, i18n, Toaster
+├── main.tsx                    # Providers: QueryClient, i18n, Toaster
 ├── app.tsx                     # React Router config
 ├── index.css                   # Tailwind + theme tokens (light + dark)
 │

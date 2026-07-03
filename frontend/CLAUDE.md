@@ -12,9 +12,9 @@ See @README.md for setup, commands, and full file structure.
 - `src/stores/auth.ts` — Zustand auth store (persisted to localStorage as `auth-storage`).
 - `src/hooks/` — React Query hooks per entity (one file per entity, with a query-key factory).
 - `src/components/ui/` — shadcn/ui primitives (never write custom buttons / inputs / dialogs).
-- `src/components/shared/` — reusable widgets: DataTable, StatCard, EmptyState, SearchInput, etc.
+- `src/components/shared/` — reusable widgets (DataTable, StatCard, EmptyState, SearchInput, …). Empty for now — create such widgets here as the need appears.
 - `src/pages/` — page components (mirror your route tree).
-- `src/app.tsx` — React Router config. `src/main.tsx` — providers (QueryClient, Tooltip, i18n, Toaster).
+- `src/app.tsx` — React Router config. `src/main.tsx` — providers (QueryClient, i18n, Toaster).
 
 ## Key utilities — always prefer these
 

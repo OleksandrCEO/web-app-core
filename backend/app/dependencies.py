@@ -14,7 +14,7 @@ async def get_current_active_user(request: Request) -> dict:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Missing bearer token")
 
     token: str = auth_header.split(" ", 1)[1]
-    payload: dict | None = decode_token(token)
+    payload: dict | None = decode_token(token, expected_type="access")
     if payload is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid or expired token")
 

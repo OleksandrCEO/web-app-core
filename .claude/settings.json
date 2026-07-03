@@ -2,7 +2,6 @@
   "permissions": {
     "allow": [
       "Bash(pnpm -C frontend install)",
-      "Bash(pnpm -C frontend dev)",
       "Bash(pnpm -C frontend build)",
       "Bash(pnpm -C frontend lint *)",
       "Bash(pnpm -C frontend preview)",
@@ -45,6 +44,16 @@
       "Bash(rm -rf /*)",
       "Bash(rm -rf ~/*)",
       "Bash(git push --force *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|Bash",
+        "hooks": [
+          { "type": "command", "command": "python3 .claude/hooks/block-env.py" }
+        ]
+      }
     ]
   }
 }

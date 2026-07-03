@@ -28,7 +28,7 @@ This document serves two purposes:
 
 ## 1. What is CLAUDE.md
 
-CLAUDE.md is a special markdown file that Claude Code reads **at the start of every conversation**. It becomes part of the system prompt — the foundational instructions that shape all of Claude's behavior during a session.
+CLAUDE.md is a special markdown file that Claude Code reads **at the start of every conversation**. Its content is added to the context at the start of every session — the foundational instructions that shape all of Claude's behavior during a session.
 
 LLMs are stateless: they retain nothing between sessions. CLAUDE.md is your primary mechanism for giving persistent context that the agent can't derive from code alone.
 
@@ -47,10 +47,11 @@ LLMs are stateless: they retain nothing between sessions. CLAUDE.md is your prim
 CLAUDE.md supports importing other files:
 ```markdown
 See @README.md for project overview
-See @docs/agent/engine.md for flow engine details
 ```
 
-This is the foundation of the orchestrator pattern (see section 4).
+**Important:** files imported via `@` are expanded and loaded into context **immediately at session start** — not "on demand". So `@` is only for what must always be in context. If a file is needed only in specific scenarios — mention its path as plain text without `@` ("For engine work read `docs/agent/engine.md`"), and the agent will open it itself when relevant.
+
+This distinction is the foundation of the orchestrator pattern (see section 4).
 
 ---
 
@@ -60,7 +61,7 @@ This is the most critical concept to understand.
 
 ### The constraint
 
-Research shows that frontier LLMs can reliably follow **~150–200 instructions**. Claude Code's own system prompt already consumes **~50 instructions**. That leaves **~100–150 instructions** for your CLAUDE.md and all imported files combined.
+A common community heuristic (a rough guide, not a precisely measured fact): frontier LLMs reliably follow **~150–200 instructions**. Claude Code's own system prompt already consumes **~50 instructions**. That leaves **~100–150 instructions** for your CLAUDE.md and all imported files combined.
 
 ### The degradation model
 
@@ -84,7 +85,7 @@ If the answer is no — delete it.
 | 200–300 lines | Maximum — performance starts degrading |
 | 300+ lines | Too long — Claude will ignore important rules |
 
-These counts apply to the **main CLAUDE.md file only**. Scenario docs loaded via @imports are pulled on demand and don't permanently occupy the instruction budget.
+These counts apply to the **main CLAUDE.md file together with all @imports** — files imported via `@` are expanded at session start and occupy the budget just the same. Scenario docs that CLAUDE.md references as plain text without `@` are opened by the agent only when needed — they don't permanently occupy the budget.
 
 ---
 
@@ -100,14 +101,14 @@ These counts apply to the **main CLAUDE.md file only**. Scenario docs loaded via
 | **Critical utility imports** | Prevents reinventing optimized code | `from app.core.data.json import json_parse` (never stdlib json) |
 | **Non-obvious gotchas** | Will break things without knowing | `MUST import new models in app/db/base.py` |
 | **Service access patterns** | Can't guess project conventions | `run.init_service(ServiceClass)` for lazy cached services |
-| **@imports to scenario docs** | Loads detailed context on demand | `See @docs/agent/engine.md` |
+| **Plain-text references to scenario docs** (without `@`) | The agent opens the file itself when relevant | `For engine work read docs/agent/engine.md` |
 
 ### Exclude
 
 | Category | Why it's wasteful | Alternative |
 |---|---|---|
 | **Abstract principles** ("DRY", "SOLID", "write clean code") | Claude already knows these from training data | Convert to specific, actionable rules |
-| **Commands you run manually** (dev server, DB reset) | Claude won't run them | Keep in README.md, reference via `@README.md` |
+| **Commands you run manually** (dev server, DB reset) | Claude won't run them | Keep in README.md, reference as plain text (`see README.md`) |
 | **Standard language conventions** | Claude already knows Python/JS/etc. conventions | Only mention deviations from defaults |
 | **Detailed API documentation** | Too long, changes often | Link to docs instead |
 | **File-by-file codebase descriptions** | Claude can read the files itself | Only mention non-obvious relationships |
@@ -207,15 +208,15 @@ A single long CLAUDE.md file has several issues:
 
 ```
 CLAUDE.md (orchestrator, ~40 lines)
-  ├── @README.md (commands, setup — already exists)
-  ├── @docs/agent/api.md (loaded when working on API)
-  ├── @docs/agent/engine.md (loaded when working on engine)
-  └── @docs/agent/platform.md (loaded when working on integrations)
+  ├── README.md (commands, setup — plain-text reference)
+  ├── docs/agent/api.md (agent opens when working on API)
+  ├── docs/agent/engine.md (agent opens when working on engine)
+  └── docs/agent/platform.md (agent opens when working on integrations)
 ```
 
 CLAUDE.md contains:
 1. **Stack overview** (1 line)
-2. **Architecture map** (5–7 lines with @imports to details)
+2. **Architecture map** (5–7 lines with plain-text references to details)
 3. **Key utilities** (must-use imports to prevent reinvention)
 4. **Service patterns** (how to access and extend)
 5. **Model conventions** (critical rules only)
@@ -224,11 +225,14 @@ CLAUDE.md contains:
 
 Everything else lives in scenario docs that Claude loads **only when relevant**.
 
-### How @imports work
+### @import vs plain-text reference
 
-When Claude works with files in a certain area of the codebase, it reads the relevant @imported doc. For example, if you ask Claude to "add a new condition for checking phone numbers," it will naturally read `@docs/agent/platform.md` because the task involves the condition registry.
+Two mechanisms with opposite token economics:
 
-This is **progressive disclosure** — the right context loads at the right time.
+- **`@import`** expands **immediately at session start**: the file's content is always in context and occupies the instruction budget. Use it only for what's needed in every session.
+- **A plain-text path mention without `@`** ("For engine work read `docs/agent/engine.md`") loads nothing up front — the agent opens the file itself when the task calls for it. For example, if you ask Claude to "add a new condition for checking phone numbers," it will naturally read `docs/agent/platform.md` because the task involves the condition registry.
+
+It's precisely these plain-text references that give **progressive disclosure** — the right context loads at the right moment, without eating into the budget every session.
 
 ### Commands: README.md vs CLAUDE.md
 
@@ -238,11 +242,11 @@ A common mistake is putting all commands in CLAUDE.md. The rule:
 |---|---|---|
 | Commands Claude will execute (lint, typecheck, migrate) | CLAUDE.md | Claude needs exact syntax |
 | Commands you run manually (dev server, DB reset, deploy) | README.md only | Wastes instruction budget |
-| Commands in both categories | CLAUDE.md for Claude's subset, @README.md for full list | No duplication |
+| Commands in both categories | CLAUDE.md for Claude's subset, plain-text reference to README.md for full list | No duplication |
 
-If all commands are already in README.md, reference it:
+If all commands are already in README.md, reference it as plain text (without `@`, so you don't pull the whole README into every session):
 ```markdown
-See @README.md for setup commands and environment variables.
+See README.md for setup commands and environment variables.
 ```
 
 ---
@@ -292,7 +296,7 @@ For personal preferences that shouldn't be shared with the team. Add to `.gitign
 
 ## 6. Writing Scenario-Based Docs
 
-Scenario docs are detailed guides for specific development workflows. They live in a dedicated folder (e.g., `docs/agent/`) and are referenced from CLAUDE.md via @imports.
+Scenario docs are detailed guides for specific development workflows. They live in a dedicated folder (e.g., `docs/agent/`); CLAUDE.md references them as plain text without `@`, and the agent opens them when needed.
 
 ### Identifying scenarios
 
@@ -529,7 +533,7 @@ The most insidious mistake. Without explicit "use THIS function" instructions, C
 1. **Run `/init`** to generate a starter CLAUDE.md
 2. **Delete everything that's obvious** — standard conventions, self-evident practices
 3. **Add your tech stack** with specific versions on line 1
-4. **Add `@README.md` reference** for commands
+4. **Add a plain-text reference to `README.md`** for commands
 5. **Identify 3–5 development scenarios** that you repeat most often
 
 ### Phase 2: Orchestrator (1 hour)
@@ -557,7 +561,7 @@ The most insidious mistake. Without explicit "use THIS function" instructions, C
     - Include constants and enums with file paths
     - Add data helper documentation specific to this scenario
 
-12. **Add @imports** to CLAUDE.md for each scenario doc
+12. **Add plain-text references** to CLAUDE.md for each scenario doc (without `@` — so they aren't loaded every session)
 
 ### Phase 4: Global File (15 min)
 
@@ -624,12 +628,12 @@ A stale doc is worse than no doc — it actively misleads.
 ```
 Project root
 ├── CLAUDE.md                    # Orchestrator (~40 lines)
-│                                # Stack, architecture map with @imports,
-│                                # key utilities, service patterns,
+│                                # Stack, architecture map with plain-text
+│                                # references, key utilities, service patterns,
 │                                # model conventions, gotchas, git
 │
 ├── CLAUDE.local.md              # Personal overrides (gitignored)
-├── README.md                    # Commands, setup, env vars (referenced via @)
+├── README.md                    # Commands, setup, env vars (plain-text reference)
 │
 ├── docs/agent/                  # Scenario-based docs (English)
 │   ├── api.md                   # New API sections: routers, models, schemas, services
@@ -638,7 +642,8 @@ Project root
 │
 └── ~/.claude/CLAUDE.md          # Global: language, thinking rules, code style, workflow
 
-MEMORY.md & memory/              # Claude's persistent memory (auto-managed)
+~/.claude/projects/<project>/memory/   # Claude's auto-memory (MEMORY.md + files) —
+                                       # lives outside the repo, not in git
 ```
 
 ### Sizing targets
@@ -646,7 +651,7 @@ MEMORY.md & memory/              # Claude's persistent memory (auto-managed)
 | File | Target lines | Content |
 |---|---|---|
 | `~/.claude/CLAUDE.md` | 15–25 | Universal preferences + behavioral rules |
-| `./CLAUDE.md` | 30–50 | Orchestrator with @imports |
+| `./CLAUDE.md` | 30–50 | Orchestrator with plain-text references to scenario docs |
 | Each scenario doc | 50–200 | Detailed workflow + code examples |
 | Total instruction load per session | < 200 | Orchestrator + 1–2 relevant scenario docs |
 

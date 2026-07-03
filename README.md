@@ -14,7 +14,7 @@ right patterns automatically (humans benefit too).
 | Path | What it gives you |
 |------|-------------------|
 | `frontend/` | Vite 8 + React 19 + TS 6 + Tailwind v4 + shadcn/ui + TanStack Query/Table + ky + Zustand + i18next |
-| `backend/` | FastAPI + async SQLAlchemy 2 + Alembic + Poetry + Docker/compose, JWT auth pre-wired |
+| `backend/` | FastAPI + async SQLAlchemy 2 + Alembic + Poetry + Docker/compose, auth primitives (JWT helpers + client flow; the auth router is added in a course module) |
 | `docs/` | `plan.md`, `packages.md` (dependency policy), `logic/`, `deployment.md` |
 | `design/` | Drop a Web Claude / Figma export here; the agent rebuilds it into `frontend/` |
 | `CLAUDE.md` | Agent instructions + pointers to the per-side `CLAUDE.md` files |
@@ -56,7 +56,8 @@ npx degit OleksandrCEO/web-app-core/backend my-app
    *Source Control → Initialize Repository* (or `git init`). This is a
    clean repo with no link to the template.
 2. **Rename the project**: `name` in `frontend/package.json`, `name` in
-   `backend/pyproject.toml`, the `<title>` in `frontend/index.html`.
+   `frontend/wrangler.jsonc`, `name` in `backend/pyproject.toml`, the
+   `<title>` in `frontend/index.html`.
 3. **Create your env files** for each side you use:
    ```bash
    cp frontend/.env.example frontend/.env
@@ -91,7 +92,7 @@ for details.
 - `docs/packages.md` — which library to use for which job (and what *not*
   to add).
 - `docs/deployment.md` — ship to an Ubuntu VPS (backend) + Cloudflare
-  Pages (frontend).
+  Workers (frontend).
 
 ## License
 

@@ -53,11 +53,13 @@ def verify_password(password: str, hashed_password: str) -> bool:
     return hmac.compare_digest(expected_hash, actual_hash)
 
 
-def create_token(payload: dict[str, Any], minutes: int) -> str:
+def create_token(payload: dict[str, Any], minutes: int, token_type: str = "access") -> str:
+    """`token_type` is "access" or "refresh" — checked in decode_token()."""
     header: dict[str, str] = {"alg": "HS256", "typ": "JWT"}
     now: datetime = datetime.now(UTC)
     body: dict[str, Any] = {
         **payload,
+        "type": token_type,
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(minutes=minutes)).timestamp()),
     }
@@ -74,7 +76,7 @@ def create_token(payload: dict[str, Any], minutes: int) -> str:
     return f"{header_encoded}.{body_encoded}.{_b64url_encode(signature)}"
 
 
-def decode_token(token: str) -> dict[str, Any] | None:
+def decode_token(token: str, expected_type: str = "access") -> dict[str, Any] | None:
     try:
         header_encoded, body_encoded, signature_encoded = token.split(".")
     except ValueError:
@@ -97,6 +99,9 @@ def decode_token(token: str) -> dict[str, Any] | None:
         return None
 
     if int(body.get("exp", 0)) < int(datetime.now(UTC).timestamp()):
+        return None
+
+    if body.get("type") != expected_type:
         return None
 
     return body

@@ -5,7 +5,7 @@ How this project ships to production. Two independent pieces:
 | Piece | Where | Why |
 |-------|-------|-----|
 | **Backend** (FastAPI + Postgres) | Ubuntu VPS via Docker Compose | One box runs the API and the DB; migrations apply on boot. |
-| **Frontend** (static SPA) | Cloudflare Pages | Free global CDN, auto-build from git, instant rollbacks. |
+| **Frontend** (static SPA) | Cloudflare Workers (Static Assets) | Free global CDN, auto-build from git, instant rollbacks. |
 
 The frontend is just static files that call the backend over HTTPS, so the
 two deploy separately and never block each other.
@@ -77,18 +77,22 @@ sudo ufw allow 22,80,443/tcp && sudo ufw enable
 
 ---
 
-## Frontend → Cloudflare Pages
+## Frontend → Cloudflare Workers (Static Assets)
+
+The frontend ships as static assets on Cloudflare Workers. `frontend/wrangler.jsonc`
+is already in the repo; a step-by-step prompt lives in `docs/deploy/cloudflare.md`.
 
 ### Option A — connect the repo (recommended)
 
-In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect
+In the Cloudflare dashboard: **Workers & Pages → Create application → Connect
 to Git**, then set:
 
 | Setting | Value |
 |---------|-------|
-| Root directory | `frontend` |
+| Project name | must match `name` in `frontend/wrangler.jsonc` |
 | Build command | `pnpm install && pnpm build` |
-| Build output directory | `dist` |
+| Deploy command | `pnpm wrangler deploy` |
+| Path (advanced) | `frontend` |
 | Environment variable | `VITE_API_URL=https://api.example.com` |
 
 Every push to `main` rebuilds and deploys automatically; previous
@@ -98,7 +102,7 @@ deployments are one-click rollbacks.
 
 ```bash
 pnpm -C frontend build
-npx wrangler pages deploy frontend/dist
+pnpm -C frontend wrangler deploy
 ```
 
 ### Wire the SPA to the API
@@ -107,9 +111,11 @@ In dev, Vite proxies `/api` to the backend (see `vite.config.ts`). In
 production the SPA is served from Cloudflare, so it must call the backend's
 public URL directly:
 
-1. Set `VITE_API_URL` (above) and read it in `src/lib/api-client.ts`.
-2. On the backend, allow the Pages domain in CORS (`app/main.py` /
-   `app/config.py`).
+1. Set `VITE_API_URL` (above); `src/lib/api-client.ts` already reads it
+   (`import.meta.env.VITE_API_URL ?? '/api'`).
+2. On the backend, `CORSMiddleware` already allows `settings.frontend_url`
+   (`app/main.py` / `app/config.py`) — set `FRONTEND_URL` to the Cloudflare
+   domain.
 
 ---
 
@@ -120,7 +126,7 @@ Production values live only on the server / in Cloudflare env — never in git.
 
 ## Rollback
 
-- **Frontend:** redeploy a previous build in the Cloudflare Pages UI.
+- **Frontend:** redeploy a previous version in the Cloudflare Workers & Pages dashboard.
 - **Backend:** `git checkout <previous-tag> && docker compose -f
   docker-compose.yml up -d --build`. If a migration must be undone, run
   `alembic downgrade -1` deliberately (it is never automatic).

@@ -1,11 +1,6 @@
 import ky from 'ky'
 
-const AUTH_STORAGE_KEY = 'auth-storage'
-
-interface AuthState {
-  accessToken?: string
-  refreshToken?: string
-}
+import { useAuthStore } from '@/stores/auth'
 
 interface TokenResponse {
   access_token: string
@@ -13,28 +8,17 @@ interface TokenResponse {
   token_type: string
 }
 
-function readAuthState(): AuthState | null {
-  const stored = localStorage.getItem(AUTH_STORAGE_KEY)
-  if (!stored) return null
-  try {
-    return (JSON.parse(stored).state as AuthState) ?? null
-  } catch {
-    return null
-  }
-}
-
-function writeAuthState(state: AuthState): void {
-  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ state, version: 0 }))
-}
+// Prod: full backend URL from VITE_API_URL. Dev: '/api' handled by the Vite proxy.
+const API_URL: string = import.meta.env.VITE_API_URL ?? '/api'
 
 export const api = ky.create({
-  prefix: '/api',
+  prefix: API_URL,
   hooks: {
     beforeRequest: [
       ({ request }) => {
-        const state = readAuthState()
-        if (state?.accessToken) {
-          request.headers.set('Authorization', `Bearer ${state.accessToken}`)
+        const { accessToken } = useAuthStore.getState()
+        if (accessToken) {
+          request.headers.set('Authorization', `Bearer ${accessToken}`)
         }
       },
     ],
@@ -42,26 +26,22 @@ export const api = ky.create({
       async ({ request, response }) => {
         if (response.status !== 401 || request.url.includes('/auth/refresh')) return
 
-        const state = readAuthState()
-        if (!state?.refreshToken) throw new Error('Unauthorized')
+        const { refreshToken } = useAuthStore.getState()
+        if (!refreshToken) throw new Error('Unauthorized')
 
         try {
           const refreshed = await ky
-            .post('/api/auth/refresh', {
-              json: { refresh_token: state.refreshToken },
+            .post(`${API_URL}/auth/refresh`, {
+              json: { refresh_token: refreshToken },
             })
             .json<TokenResponse>()
 
-          writeAuthState({
-            ...state,
-            accessToken: refreshed.access_token,
-            refreshToken: refreshed.refresh_token,
-          })
+          useAuthStore.getState().setTokens(refreshed.access_token, refreshed.refresh_token)
 
           request.headers.set('Authorization', `Bearer ${refreshed.access_token}`)
           return ky(request)
         } catch {
-          localStorage.removeItem(AUTH_STORAGE_KEY)
+          useAuthStore.getState().logout()
           window.location.href = '/login'
           throw new Error('Session expired')
         }
