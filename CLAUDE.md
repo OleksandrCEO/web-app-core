@@ -14,7 +14,7 @@ Each side can also be lifted out and developed independently.
 
 ```
 .
-├── backend/      # FastAPI (Python 3.12+) — optional
+├── backend/      # FastAPI (Python 3.13+) — optional
 ├── frontend/     # Vite + React 19 + TS — optional
 ├── docs/         # Project-wide docs (plan, logic, deployment)
 ├── .claude/      # Claude Code permissions (settings.json)

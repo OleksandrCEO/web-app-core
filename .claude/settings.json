@@ -51,7 +51,7 @@
       {
         "matcher": "Read|Edit|Write|Bash",
         "hooks": [
-          { "type": "command", "command": "python3 .claude/hooks/block-env.py" }
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-env.py" }
         ]
       }
     ]
