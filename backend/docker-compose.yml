@@ -13,10 +13,11 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:pg17
     restart: unless-stopped
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./scripts/init-vector.sql:/docker-entrypoint-initdb.d/init-vector.sql:ro
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
