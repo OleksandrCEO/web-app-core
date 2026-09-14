@@ -37,7 +37,8 @@ LLMs are stateless: they retain nothing between sessions. CLAUDE.md is your prim
 | Location | Scope | Shared? |
 |---|---|---|
 | `~/.claude/CLAUDE.md` | All projects globally | Personal |
-| `./CLAUDE.md` | Current project | Yes, via git |
+| `./CLAUDE.md` (or `./.claude/CLAUDE.md`) | Current project | Yes, via git |
+| `./.claude/rules/*.md` | Extra rule files; with `paths:` frontmatter they load only when Claude touches matching files | Yes |
 | `./CLAUDE.local.md` | Current project, personal | No (.gitignore) |
 | `./subdir/CLAUDE.md` | Loaded when working in that directory | Yes |
 | Parent directories | Loaded automatically (monorepo support) | Yes |
@@ -50,6 +51,8 @@ See @README.md for project overview
 ```
 
 **Important:** files imported via `@` are expanded and loaded into context **immediately at session start** — not "on demand". So `@` is only for what must always be in context. If a file is needed only in specific scenarios — mention its path as plain text without `@` ("For engine work read `docs/agent/engine.md`"), and the agent will open it itself when relevant.
+
+Syntax details: `@path` inside backticks or a code block is **not** imported — wrap a path in backticks to mention it literally. Imports nest up to 4 hops. Block-level HTML comments (`<!-- ... -->`) are stripped before loading, so they are free notes for human maintainers.
 
 This distinction is the foundation of the orchestrator pattern (see section 4).
 
@@ -84,6 +87,8 @@ If the answer is no — delete it.
 | 100–200 lines | Acceptable if all lines are essential |
 | 200–300 lines | Maximum — performance starts degrading |
 | 300+ lines | Too long — Claude will ignore important rules |
+
+Anthropic's official target is **under 200 lines per CLAUDE.md file** — longer files measurably reduce adherence. `/doctor` proposes trims for a checked-in CLAUDE.md: it cuts what Claude can derive from the codebase (directory layouts, dependency lists, architecture overviews) and keeps pitfalls, rationale, and conventions that differ from tool defaults.
 
 These counts apply to the **main CLAUDE.md file together with all @imports** — files imported via `@` are expanded at session start and occupy the budget just the same. Scenario docs that CLAUDE.md references as plain text without `@` are opened by the agent only when needed — they don't permanently occupy the budget.
 
@@ -234,6 +239,17 @@ Two mechanisms with opposite token economics:
 
 It's precisely these plain-text references that give **progressive disclosure** — the right context loads at the right moment, without eating into the budget every session.
 
+### Four ways to load context on demand
+
+| Mechanism | Loads when | Use for |
+|---|---|---|
+| Plain-text reference to `docs/agent/*.md` | The agent decides the task needs it | Scenario docs — this guide's default, zero setup |
+| Skill (`.claude/skills/<name>/SKILL.md`) | Claude matches the skill's `description` to your prompt, or you call `/name` | Repeatable workflows and domain knowledge; Anthropic's recommended home for "sometimes-relevant" content |
+| Path-scoped rule (`.claude/rules/*.md` with `paths:` frontmatter) | Claude reads a file matching the glob | Rules tied to a file type or directory (`src/api/**/*.ts`) |
+| Nested `subdir/CLAUDE.md` | Claude works with files in that directory | Per-package rules in a monorepo |
+
+All four keep the orchestrator short. Pick the simplest that fits. A scenario doc becomes a skill by adding frontmatter with a one-line `description` — write it as *when to use* ("Use when adding or changing a migration"), not *what it contains* ("Use when working with databases"), or Claude will pull it into unrelated tasks.
+
 ### Commands: README.md vs CLAUDE.md
 
 A common mistake is putting all commands in CLAUDE.md. The rule:
@@ -291,6 +307,17 @@ Specific to one codebase. This is the orchestrator described in section 4.
 ### Personal project overrides (`./CLAUDE.local.md`)
 
 For personal preferences that shouldn't be shared with the team. Add to `.gitignore`.
+
+### Sharing rules with other agents (`AGENTS.md`)
+
+Claude Code reads `CLAUDE.md`, not `AGENTS.md`. If the repo already keeps rules in `AGENTS.md` for Codex, Cursor or others, make `CLAUDE.md` a one-line import plus Claude-specific additions:
+
+```markdown
+@AGENTS.md
+
+## Claude Code
+- Use plan mode for changes under `src/billing/`.
+```
 
 ---
 
@@ -571,7 +598,7 @@ The most insidious mistake. Without explicit "use THIS function" instructions, C
 
 ### Phase 5: Validation (ongoing)
 
-16. **Test in a fresh session** — does Claude follow the rules?
+16. **Test in a fresh session** — run `/context` and confirm every file is listed under **Memory files**, then check that Claude follows the rules
 17. **Monitor for these signals**:
     - Claude ignores a rule → file too long, or rule too vague
     - Claude asks a question answered in CLAUDE.md → phrasing is ambiguous
@@ -585,7 +612,7 @@ The most insidious mistake. Without explicit "use THIS function" instructions, C
 
 ### Adding new instructions
 
-Before adding, apply this decision tree:
+Add an instruction when Claude makes the same mistake a second time, a review catches something Claude should have known about this codebase, or you type the same correction you typed last session. Then place it with this decision tree:
 
 ```
 Is this universally applicable to all tasks?
@@ -660,6 +687,7 @@ Project root
 ## 13. Sources
 
 - [Best Practices for Claude Code — Anthropic official docs](https://code.claude.com/docs/en/best-practices)
+- [How Claude remembers your project (CLAUDE.md, rules, auto memory) — Anthropic official docs](https://code.claude.com/docs/en/memory)
 - [Writing a good CLAUDE.md — HumanLayer Blog](https://www.humanlayer.dev/blog/writing-a-good-claude-md)
 - [How to Write a Good CLAUDE.md — Builder.io](https://www.builder.io/blog/claude-md-guide)
 - [Claude Code Best Practices — GitHub (awattar)](https://github.com/awattar/claude-code-best-practices)

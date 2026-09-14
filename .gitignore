@@ -19,3 +19,4 @@ logs/
 
 # Claude
 .claude/settings.local.json
+.playwright-mcp
